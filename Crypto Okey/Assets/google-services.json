@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "816632454977",
+    "project_id": "cryptookey",
+    "storage_bucket": "cryptookey.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:816632454977:android:5c3720ecb03e1ded7ecbc0",
+        "android_client_info": {
+          "package_name": "com.SpiceGirls.CryptoOkey"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "816632454977-9kcfrl0tpd2m67135qnqaph63uvd3706.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBr55fh-7ssNyHEpRQMd1an0kLbdcMtPyw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "816632454977-9kcfrl0tpd2m67135qnqaph63uvd3706.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
