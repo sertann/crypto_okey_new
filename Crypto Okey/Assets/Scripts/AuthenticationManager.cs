@@ -10,11 +10,24 @@ using Firebase;
 public class AuthenticationManager : MonoBehaviour
 {
 
-    [SerializeField] GameObject loginPage, signUpPage, forgetPage, warning;
-    [SerializeField] TMP_InputField loginEmail, loginPassword, signupNick, signupEmail, signupPassword, signupCPassword, forgetEmail;
+    [SerializeField] GameObject loginPage, signUpPage, forgetPage, warning, gamePage;
+    [SerializeField] TMP_InputField loginEmail, loginPassword, signupEmail, signupPassword, signupCPassword, forgetEmail;
     FirebaseAuth auth;
     FirebaseUser user;
     string displayName;
+
+    public static AuthenticationManager instance;
+
+    private void Awake()
+    {
+        if(instance == null)
+        {
+            instance = this;
+            return;
+        }
+
+        Destroy(gameObject);
+    }
 
     private void Start()
     {
@@ -55,6 +68,16 @@ public class AuthenticationManager : MonoBehaviour
     public void OpenLoginPage()
     {
         loginPage.SetActive(true);
+        signUpPage.SetActive(false);
+    }
+
+    void CloseLoginPage()
+    {
+        loginPage.SetActive(false);
+    }
+
+    void CloseSignUpPage()
+    {
         signUpPage.SetActive(false);
     }
 
@@ -105,7 +128,7 @@ public class AuthenticationManager : MonoBehaviour
 
     void LoginUser(string email, string password)
     {
-        auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWith(task => {
+        auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWithOnMainThread(task => {
             if (task.IsCanceled)
             {
                 Debug.LogError("SignInWithEmailAndPasswordAsync was canceled.");
@@ -120,8 +143,14 @@ public class AuthenticationManager : MonoBehaviour
             Firebase.Auth.FirebaseUser newUser = task.Result;
             Debug.LogFormat("User signed in successfully: {0} ({1})",
                 newUser.DisplayName, newUser.UserId);
-            user = newUser;
-            displayName = newUser.DisplayName;
+            if (!user.IsEmailVerified)
+            {
+                SendVerificationEmail();
+            }
+            else
+            {
+                ConnectToGameScene();
+            }
         });
     }
 
@@ -138,18 +167,57 @@ public class AuthenticationManager : MonoBehaviour
                 Debug.LogError("CreateUserWithEmailAndPasswordAsync encountered an error: " + task.Exception);
                 return;
             }
-            OpenLoginPage();
+            
             Firebase.Auth.FirebaseUser newUser = task.Result;
             Debug.LogFormat("Firebase user created successfully: {0} ({1})",
                 newUser.DisplayName, newUser.UserId);
-            
+            if (!user.IsEmailVerified)
+            {
+                SendVerificationEmail();
+            }
+
+            OpenLoginPage();
+
         });
         
+    }
+
+    void ConnectToGameScene()
+    {
+        CloseLoginPage();
+        gamePage.SetActive(true);
+    }
+
+    void SendVerificationEmail()
+    {
+        
+        if (user != null)
+        {
+            user.SendEmailVerificationAsync().ContinueWithOnMainThread(task => {
+                if (task.IsCanceled)
+                {
+                    Debug.LogError("SendEmailVerificationAsync was canceled.");
+                    return;
+                }
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("SendEmailVerificationAsync encountered an error: " + task.Exception);
+                    return;
+                }
+                UIManager.instance.EmailSentNotification(user.Email);
+                Debug.Log("Email sent successfully.");
+            });
+        }
     }
 
     void OnDestroy()
     {
         auth.StateChanged -= AuthStateChanged;
         auth = null;
+    }
+
+    public FirebaseUser GetCurrentUser()
+    {
+        return user;
     }
 }

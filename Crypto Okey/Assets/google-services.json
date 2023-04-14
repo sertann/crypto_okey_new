@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "816632454977",
+    "firebase_url": "https://cryptookey-default-rtdb.firebaseio.com",
     "project_id": "cryptookey",
     "storage_bucket": "cryptookey.appspot.com"
   },
